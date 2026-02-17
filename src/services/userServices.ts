@@ -1,19 +1,17 @@
-import User from '../models/User';
+import { UserRepository } from '../repositories/userRepository';
 
 export default class userServices{
+private repository: UserRepository;
 
+  constructor() {
+    this.repository = new UserRepository();
+  }
     async createNewUser(userData :any){
-        const user=new User(userData);
-        await user.save();        
-
-
-    return user;
-        
-
-        
+        const user = await this.repository.create(userData);
+        return user;
 }
      
     async fetchAllUsers(){
-       return await User.find();
+       return await this.repository.findAll();
     }
 }
