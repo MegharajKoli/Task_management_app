@@ -1,6 +1,7 @@
 import User from '../models/User';
 import { TaskRepository} from '../repositories/taskRepository';
 import { ActivityLogService } from './activityLogServices';
+import { AppError } from '../middlewares/appError';
 
 
 export default class taskServices{
@@ -39,7 +40,7 @@ async update(taskId: string, updates: any) {
     const existingTask = await this.repository.findById(taskId);
 
   if (!existingTask) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found", 404);
   }
 
   if (updates.assigned_to) {
