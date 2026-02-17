@@ -9,18 +9,7 @@ export const getTaskReport = async (req: Request, res: Response) => {
         count: { $sum: 1 },
       },
     },
-    {
-      $group: {
-        _id: '$_id.status',
-        priorities: {
-          $push: {
-            priority: '$_id.priority',
-            count: '$count',
-          },
-        },
-        total: { $sum: '$count' },
-      },
-    },
+    
   ]);
   res.json(report);
 };

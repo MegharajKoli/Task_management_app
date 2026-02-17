@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import * as commentService from "../services/commentServices";
+import commentServices from "../services/commentServices";
+import { asyncHandler } from '../middlewares/asyncHandlers';
 
 const commentSchema = z.object({
   content: z.string().min(1),
@@ -9,32 +10,36 @@ const commentSchema = z.object({
 interface TaskParams {
   taskId: string;
 }
+interface CommentParams {
+  commentId: string;
+}
 
-export const addComment = async (req: Request<TaskParams>, res: Response) => {
-  try {
+export default class commentController{
+    constructor(private commentservices: commentServices){}
+
+ addComment = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response)  => {
+
     const validatedData = commentSchema.parse(req.body);
 
-    const comment = await commentService.createComment(
+    const comment = await this.commentservices.createComment(
       req.params.taskId,
       validatedData.content
-    );
-
+    )
     res.status(201).json(comment);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: error.issues });
-    }
-    res.status(500).json({ message: "Server error" });
-  }
-};
+  });
 
-export const getCommentsByTask = async (req: Request<TaskParams>, res: Response) => {
-  try {
-    const comments = await commentService.getCommentsByTaskId(
+ getCommentsByTask = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response) => {
+  
+    const comments = await this.commentservices.getCommentsByTaskId(
       req.params.taskId
     );
     res.json(comments);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
+
+});
+
+ deleteComment = asyncHandler<CommentParams>(async (req: Request<CommentParams>, res: Response) => {
+            await this.commentservices.deleteCommentById(req.params.commentId);
+            res.send({ message: "Deleted" });
+        
+    });
+}
