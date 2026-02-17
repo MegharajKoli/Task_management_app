@@ -1,7 +1,7 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IComment extends Document {
-  task_id: Schema.Types.ObjectId;
+  task_id: Types.ObjectId;
   content: string;
   createdAt: Date;
 }
