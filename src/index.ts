@@ -8,17 +8,19 @@ import reportRoutes from './routes/reportRoutes';
 
 dotenv.config();
 
-const app: Application = express();
 
+const app = express();
 app.use(express.json());
 
 // Connect to DB
 connectDB();
 
-// Routes
-app.use('/api/users', userRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/reports', reportRoutes);
+app.use('/users', userRoutes);
+app.use('/reports',reportRoutes);
+app.use('/tasks',taskRoutes);
+app.use('/comments',commentRoutes);
 
-export default app;
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
