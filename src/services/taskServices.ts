@@ -1,40 +1,40 @@
-import User from '../models/User';
 import { TaskRepository} from '../repositories/taskRepository';
 import { ActivityLogService } from './activityLogServices';
 import { AppError } from '../middlewares/appError';
-
+import { TaskStatusRules } from '../domain/taskStatusRules';
+import userServices from "./userServices"
 
 export default class taskServices{
    private repository: TaskRepository;
+   private activitylog: ActivityLogService;
+   private userservice: userServices;
 
   constructor() {
     this.repository = new TaskRepository();
+    this.activitylog =new ActivityLogService();
+    this.userservice=new userServices();
   }
   
     async createNewTask(taskBody:any){
-        const user = await User.findOne({ email: taskBody.assigned_to });
-    if (!user) {
-      throw new Error("USER_NOT_FOUND");
-    }
+       const user = await this.userservice.getValidUserByEmail(taskBody.assigned_to);
 
-         const task= await this.repository.create({
+        const task= await this.repository.create({
       ...taskBody,
       assigned_to: user._id,
       status: "Open",
       createdAt: new Date(),
     });
-     ActivityLogService.createTask(task._id);
+     this.activitylog.taskCreated(task._id);
     return task;
     }
     
    async delete(taskId: string) {
    const deleted = await this.repository.delete(taskId);
-   ActivityLogService.deleteTask(taskId);
-  
-  if (!deleted) {
-    throw new Error("Task not found");
+   this.activitylog.taskDeleted(taskId);
+   if (!deleted) {
+    throw new AppError("Task not found",404);
   }
-}
+ }
 
 async update(taskId: string, updates: any) {
     const existingTask = await this.repository.findById(taskId);
@@ -42,47 +42,25 @@ async update(taskId: string, updates: any) {
   if (!existingTask) {
     throw new AppError("Task not found", 404);
   }
-
-  if (updates.assigned_to) {
-    const user = await User.findOne({ email: updates.assigned_to });
-
-    if (!user) {
-      throw new Error("USER_NOT_FOUND");
+  if (updates.status) {
+      TaskStatusRules.validate(existingTask.status, updates.status);
     }
 
+  if (updates.assigned_to) {
+    const user = await this.userservice.getValidUserByEmail(updates.assigned_to);
     updates.assigned_to = user._id;
   }
 
-  if (updates.status) {
-    const currentStatus = existingTask.status;
-    const newStatus = updates.status;
-
-    const validTransitions: Record<string, string[]> = {
-      Open: ["In Progress"],
-      "In Progress": ["Done"],
-      Done: [],
-    };
-
-    if (
-      !validTransitions[currentStatus] ||
-      !validTransitions[currentStatus].includes(newStatus)
-    ) {
-      throw new Error(
-        `Invalid status transition: ${currentStatus} → ${newStatus}`
-      );
-    }
-  }
   const updatedTask = await this.repository.update(taskId, updates);
   
   if (!updatedTask) {
-    throw new Error("Task not found");
+    throw new AppError("Task not found",404);
   }
-  ActivityLogService.updateTask(taskId);
+  this.activitylog.taskUpdated(taskId);
   return updatedTask;
 }
 
 async fetchAllTask() {
   return this.repository.findAll();
-}
-    
+}    
 }

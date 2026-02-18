@@ -1,46 +1,37 @@
-import ActivityLog from '../models/ActivityLog';
 import {Types} from 'mongoose';
+import { ActivityLogRepository } from "../repositories/activityLogRepository";
 
 export class ActivityLogService {
-    static async createTask(taskId: Types.ObjectId, action: string="Task Created") {
+     private repository: ActivityLogRepository;
+    
+      constructor() {
+        this.repository = new ActivityLogRepository();
+      }
+
+  async logAction(taskId: Types.ObjectId | string, action: string) {
     try {
-      await ActivityLog.create({
-        task_id: taskId,
+      await this.repository.create({
+        task_id: new Types.ObjectId(taskId),
         action,
       });
     } catch (err) {
       console.error('Activity logging failed', err);
     }
   }
-    static async updateTask(taskId: string , action: string="Task Updated") {
-    try {
-      await ActivityLog.create({
-        task_id: taskId,
-        action,
-      });
-    } catch (err) {
-      console.error('Activity logging failed', err);
-    }
-  }
-    static async deleteTask(taskId: string , action: string="Task deleted") {
-    try {
-      await ActivityLog.create({
-        task_id: taskId,
-        action,
-      });
-    } catch (err) {
-      console.error('Activity logging failed', err);
-    }
+  async taskCreated(taskId: string | Types.ObjectId  ): Promise<void> {
+    await this.logAction(taskId, 'Task Created');
   }
 
-  static async addComment(taskId: string , action: string="Comment Added") {
-    try {
-      await ActivityLog.create({
-        task_id: taskId,
-        action,
-      });
-    } catch (err) {
-      console.error('Activity logging failed', err);
-    }
+  async taskUpdated(taskId: string | Types.ObjectId): Promise<void> {
+    await this.logAction(taskId, 'Task Updated');
+  }
+
+  async taskDeleted(taskId: string | Types.ObjectId): Promise<void> {
+    await this.logAction(taskId, 'Task Deleted');
+  }
+
+  async commentAdded(taskId: string | Types.ObjectId): Promise<void> {
+    await this.logAction(taskId, 'Comment Added');
   }
 }
+   
