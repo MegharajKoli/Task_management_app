@@ -1,12 +1,7 @@
 
 import { Model } from 'mongoose';
 import Comment, { IComment } from '../models/Comment';   
-
-export interface ICommentRepository {
-  create(CommentData: Partial<IComment>): Promise<IComment>;
-  delete(CommentId: string): Promise<boolean>;
-  findAll(): Promise<IComment[]>;
-}
+import { ICommentRepository } from '../domain/ICommentRepository';
 
 export class CommentRepository implements ICommentRepository {
   private  CommentModel: Model<IComment>;
