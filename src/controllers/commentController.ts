@@ -1,31 +1,29 @@
 import { Request, Response } from "express";
-import { z } from "zod";
 import commentServices from "../services/commentServices";
 import { asyncHandler } from '../middlewares/asyncHandlers';
-
-const commentSchema = z.object({
-  content: z.string().min(1),
-});
+import { ActivityLogService } from "../services/activityLogServices";
 
 interface TaskParams {
   taskId: string;
 }
+
 interface CommentParams {
   commentId: string;
 }
 
 export default class commentController{
-    constructor(private commentservices: commentServices){}
+    constructor(private commentservices: commentServices, private activitylogservice: ActivityLogService){}
 
- addComment = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response)  => {
-
-    const validatedData = commentSchema.parse(req.body);
-
+    addComment = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response)  => {
+    const {content}= req.body;
+    const taskId = req.params.taskId;
     const comment = await this.commentservices.createComment(
-      req.params.taskId,
-      validatedData.content
+      taskId,
+      content
     )
+    await this.activitylogservice.commentAdded(taskId);
     res.status(201).json(comment);
+    
   });
 
  getCommentsByTask = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response) => {
