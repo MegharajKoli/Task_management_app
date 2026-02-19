@@ -1,11 +1,9 @@
 import { Router } from 'express';
 import taskController from '../controllers/taskController';
-import taskServices from '../services/taskServices';
-import { asyncHandler } from '../middlewares/asyncHandlers';
 import { validate } from "../middlewares/validate";
 import {createTaskSchema,updateTaskSchema,taskIdSchema} from "../schema/taskSchema";
+import { taskservice } from '../containers/taskServiceContainer';
 
-const taskservice = new taskServices();
 const taskcontroller = new taskController(taskservice);
 const router = Router();
 

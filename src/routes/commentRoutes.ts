@@ -1,18 +1,14 @@
 import { Router } from 'express';
 import commentController from '../controllers/commentController';
-import commentServices from '../services/commentServices';
 import { validate } from "../middlewares/validate";
 import { commentSchema, commentIdSchema } from '../schema/commentSchema';
-import { taskIdSchema } from '../schema/taskSchema';
-import { ActivityLogService } from '../services/activityLogServices';
+import { commentservice } from '../containers/commentServiceContainer';
 
 const router = Router();
 
-const commentservices=new commentServices();
-const activitylogservice=new ActivityLogService();
-const commentcontroller =  new commentController(commentservices,activitylogservice);
+const commentcontroller =  new commentController(commentservice);
 
-router.post('/:taskId', validate({body:commentSchema ,params : taskIdSchema }),commentcontroller.addComment);
+router.post('/:taskId', validate({body:commentSchema }),commentcontroller.addComment);
 router.get('/:taskId',commentcontroller.getCommentsByTask);
 router.delete('/:commentId',validate({params:commentIdSchema}), commentcontroller.deleteComment);
 
