@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import commentServices from "../services/commentServices";
 import { asyncHandler } from '../middlewares/asyncHandlers';
-import { ActivityLogService } from "../services/activityLogServices";
 
 interface TaskParams {
   taskId: string;
@@ -12,7 +11,7 @@ interface CommentParams {
 }
 
 export default class commentController{
-    constructor(private commentservices: commentServices, private activitylogservice: ActivityLogService){}
+    constructor(private commentservices: commentServices){}
 
     addComment = asyncHandler<TaskParams>(async (req: Request<TaskParams>, res: Response)  => {
     const {content}= req.body;
@@ -21,7 +20,6 @@ export default class commentController{
       taskId,
       content
     )
-    await this.activitylogservice.commentAdded(taskId);
     res.status(201).json(comment);
     
   });
