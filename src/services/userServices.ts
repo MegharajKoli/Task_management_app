@@ -1,11 +1,10 @@
 import { UserRepository } from '../repositories/userRepository';
 import { AppError } from '../middlewares/appError';
+import { NotificationService } from './notification/notificationService';
 
 export default class userServices{
-private repository: UserRepository;
 
-  constructor() {
-    this.repository = new UserRepository();
+  constructor(private repository: UserRepository, private notificationService: NotificationService) {
   }
     
   async getValidUserByEmail(email: string) {
@@ -18,6 +17,7 @@ private repository: UserRepository;
 
     async createNewUser(userData :any){
         const user = await this.repository.create(userData);
+        this.notificationService.sendWelcomeEmail(user.email,user.name);
         return user;
     }
      

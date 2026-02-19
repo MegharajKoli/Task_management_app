@@ -1,14 +1,12 @@
 import mongoose, {Types} from "mongoose";
 import { CommentRepository } from "../repositories/commentRepository";
-import { ActivityLogService } from "./activityLogServices";
+import { ActivityLogHelper } from "../helpers/activityLogHelper";
 
 export default class commentServices{
-  private repository: CommentRepository;
-  private activitylog: ActivityLogService;
 
-    constructor() {
-      this.repository = new CommentRepository();
-      this.activitylog =new ActivityLogService();
+    constructor(
+      private repository: CommentRepository,
+      private activitylog: ActivityLogHelper) {
     }
 
  createComment = async (taskId: string, content: string) => {
@@ -21,7 +19,7 @@ export default class commentServices{
 };
 
  getCommentsByTaskId = async (taskId: string) => {
-  return await this.repository.findAll({
+  return await this.repository.findByTaskId({
     task_id: new mongoose.Types.ObjectId(taskId),
   });
 };
