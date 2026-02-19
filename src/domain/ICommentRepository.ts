@@ -1,7 +1,5 @@
 import {IComment} from "../models/Comment"
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface ICommentRepository {
-  create(CommentData: Partial<IComment>): Promise<IComment>;
-  delete(CommentId: string): Promise<boolean>;
-  findAll(): Promise<IComment[]>;
+export interface ICommentRepository extends IBaseRepository<IComment>{
 }
