@@ -1,25 +1,14 @@
-
-import { Model } from 'mongoose';
 import Comment, { IComment } from '../models/Comment';   
 import { ICommentRepository } from '../domain/ICommentRepository';
+import { BaseMongoRepository } from './BaseRepository';
 
-export class CommentRepository implements ICommentRepository {
-  private  CommentModel: Model<IComment>;
+export class CommentRepository extends BaseMongoRepository<IComment> implements ICommentRepository {
 
   constructor() {
-    this.CommentModel = Comment;   
+    super(Comment);  
   }
 
-  async create(CommentData: Partial<IComment>): Promise<IComment> {
-    const Comment = new this.CommentModel(CommentData);
-    return Comment.save();
-  }
-  async delete(CommentId: string): Promise<boolean> {
-  const result = await this.CommentModel.findByIdAndDelete(CommentId).exec();
-  return !!result;  
-}
-
-  async findAll(filter={}): Promise<IComment[]> {
+    async findByTaskId(filter={}): Promise<IComment[]> {
     return Comment.find(filter);
   }
 }

@@ -1,24 +1,14 @@
 
-import { Model } from 'mongoose';
 import User, { IUser } from '../models/User';   
 import { IUserRepository } from '../domain/IUserInterface';
+import { BaseMongoRepository } from './BaseRepository';
 
-export class UserRepository implements IUserRepository {
-  private  userModel: Model<IUser>;
-
-  constructor() {
-    this.userModel = User;   
+export class UserRepository extends BaseMongoRepository<IUser> implements IUserRepository{
+ constructor() {
+    super(User);
   }
 
-  async create(userData: Partial<IUser>): Promise<IUser> {
-    const user = new this.userModel(userData);
-    return user.save();
-  }
-
-  async findAll(): Promise<IUser[]> {
-    return this.userModel.find().exec();
-  }
   async findByEmail(email: string): Promise<IUser | null> {
-    return this.userModel.findOne({ email }).exec();
+    return this.model.findOne({ email }).exec();
   }
 }
