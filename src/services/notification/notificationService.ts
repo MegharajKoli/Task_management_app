@@ -1,15 +1,10 @@
-import { NotificationFactory } from "./notificationFactory";
+import { NotificationChannel } from "./channels/notificationChannel";
 
 export class NotificationService {
-  private getChannel() {
-    const channelType = process.env.NOTIFICATION_CHANNEL || "email";
-    return NotificationFactory.create(channelType);
-  }
+  constructor(private channel: NotificationChannel) {}
 
   async sendWelcomeEmail(email: string, name: string) {
-    const channel = this.getChannel();
-
-    await channel.send(
+    await this.channel.send(
       email,
       "Welcome to Our Platform",
       `Hello ${name}, welcome to our application!`
@@ -17,9 +12,7 @@ export class NotificationService {
   }
 
   async sendTaskCreatedNotification(email: string, taskTitle: string) {
-    const channel = this.getChannel();
-
-    await channel.send(
+    await this.channel.send(
       email,
       "New Task Assigned",
       `A new task "${taskTitle}" has been assigned to you.`
@@ -27,9 +20,7 @@ export class NotificationService {
   }
 
   async sendTaskUpdatedNotification(email: string, taskTitle: string) {
-    const channel = this.getChannel();
-
-    await channel.send(
+    await this.channel.send(
       email,
       "Task Updated",
       `The task "${taskTitle}" has been updated.`
