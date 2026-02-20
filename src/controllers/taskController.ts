@@ -1,12 +1,13 @@
 import type {Request, Response} from "express";
 import taskServices from "../services/taskServices";
 import { asyncHandler } from '../middlewares/asyncHandlers';
+import { CreateTaskDto } from "../dtos/taskDTO/createTaskDTO";
 
 export default class taskController{
 
     constructor(private taskservices:taskServices){}
 
-    createTask= asyncHandler(async (req : Request, res : Response) => {
+    createTask= asyncHandler(async (req : Request<CreateTaskDto>, res : Response) => {
         const task = await this.taskservices.createNewTask(req.body);
         res.send(task); 
     });
