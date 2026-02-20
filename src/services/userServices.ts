@@ -1,23 +1,15 @@
 import { UserRepository } from '../repositories/userRepository';
-import { AppError } from '../middlewares/appError';
-import { NotificationService } from './notification/notificationService';
+import { NotificationHelper } from '../helpers/notificationHelper';
+import { UserDTO } from '../dtos/userDTO';
 
 export default class userServices{
 
-  constructor(private repository: UserRepository, private notificationService: NotificationService) {
+  constructor(private repository: UserRepository, private notificationhelper:NotificationHelper) {
   }
     
-  async getValidUserByEmail(email: string) {
-    const user = await this.repository.findByEmail(email);
-    if (!user) {
-      throw new AppError("User Not Found", 404);
-    }
-    return user;
-  }
-
-    async createNewUser(userData :any){
+    async createNewUser(userData : UserDTO){
         const user = await this.repository.create(userData);
-        this.notificationService.sendWelcomeEmail(user.email,user.name);
+        await this.notificationhelper.sendWelcome(user);
         return user;
     }
      
