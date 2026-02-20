@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Priority, Status } from "../models/Task";
+import { Priority , Status } from "../domain/taskEnums";
 
 const taskBase = {
   title: z

@@ -1,21 +1,10 @@
-import { Schema, model, Document } from 'mongoose';
-
-export enum Priority {
-  Low = 'Low',
-  Medium = 'Medium',
-  High = 'High',
-}
-
-export enum Status {
-  Open = 'Open',
-  InProgress = 'In Progress',
-  Done = 'Done',
-}
+import { Schema, Types, model, Document } from 'mongoose';
+import { Status, Priority } from '../domain/taskEnums';
 
 export interface ITask extends Document {
   title: string;
   description: string;
-  assigned_to: Schema.Types.ObjectId;
+  assigned_to: Types.ObjectId;
   priority: Priority;
   status: Status;
   createdAt: Date;
