@@ -1,4 +1,3 @@
-import { Model } from 'mongoose';
 import ActivityLog, {IActivityLog } from '../models/ActivityLog'; 
 import { IActivityLogRepository } from '../domain/IActivityLogRepository';
 import { BaseMongoRepository } from './BaseRepository';

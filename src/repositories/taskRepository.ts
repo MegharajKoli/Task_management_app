@@ -1,5 +1,3 @@
-
-import { Model } from 'mongoose';
 import Task, { ITask } from '../models/Task'; 
 import { ITaskRepository } from '../domain/ITaskRepository';  
 import { BaseMongoRepository } from './BaseRepository';
