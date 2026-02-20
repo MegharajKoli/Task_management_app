@@ -14,7 +14,7 @@ export default class commentServices{
     task_id: new Types.ObjectId(taskId),
     content,
   });
-  this.activitylog.commentAdded(taskId);
+  await this.activitylog.commentAdded(taskId);
   return comment;
 };
 
