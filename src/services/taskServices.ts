@@ -3,7 +3,11 @@ import { AppError } from '../middlewares/appError';
 import { TaskAssignmentService } from '../helpers/taskAssignmentService';
 import { TaskDomainService } from '../helpers/taskDomainService';
 import { ActivityLogHelper } from '../helpers/activityLogHelper';
-import { NotificationService } from './notification/notificationService';
+import { NotificationHelper } from '../helpers/notificationHelper';
+import { CreateTaskDto } from '../dtos/taskDTO/createTaskDTO';
+import { Status } from '../domain/taskEnums';
+import { UpdateTaskDto } from '../dtos/taskDTO/updateTaskDTO';
+import { TaskMapper } from '../helpers/mapperUtility';
 
 export default class taskServices{
 
@@ -12,20 +16,22 @@ export default class taskServices{
   private assignmentService: TaskAssignmentService,
   private activitylog: ActivityLogHelper,
   private taskdomain:TaskDomainService,
-  private notificationService: NotificationService) { 
+  private notification:NotificationHelper) { 
   }
   
-    async createNewTask(taskBody:any){
+    async createNewTask(taskBody: CreateTaskDto){
        const user = await this.assignmentService.resolveUser(taskBody.assigned_to);
 
         const task= await this.repository.create({
       ...taskBody,
       assigned_to: user._id,
-      status: "Open",
+      status: Status.Open,
       createdAt: new Date(),
     });
-    await this.notificationService.sendTaskCreatedNotification(user.email,task.title);
-    await this.activitylog.taskCreated(task._id);
+    await Promise.all([
+      this.notification.taskCreated(user, task),
+      this.activitylog.taskCreated(task._id)
+    ]);
     return task;
     }
     
@@ -37,23 +43,27 @@ export default class taskServices{
   await this.activitylog.taskDeleted(taskId);
  }
 
-async update(taskId: string, updates: any) {
+async update(taskId: string, updates: UpdateTaskDto) {
     const existingTask = await this.getTaskOrThrow(taskId);
 
   if (updates.status) {
       await this.taskdomain.changeStatus(existingTask.status, updates.status);
     }
-
+  
+    let resolvedUserId: string | undefined;
+    let user;
   if (updates.assigned_to) {
-     const user = await this.assignmentService.resolveUser(updates.assigned_to);
-    updates.assigned_to = user._id;
+     user = await this.assignmentService.resolveUser(updates.assigned_to);
+    resolvedUserId = user._id.toString(); 
   }
 
-  const updatedTask = await this.repository.update(taskId, updates);
-   const user = await this.assignmentService.resolveUser(updates.assigned_to);
-   
+  const persistenceData = TaskMapper.toPersistence(updates, resolvedUserId);
+  const updatedTask= await this.repository.update(taskId, persistenceData);
+
   await this.activitylog.taskUpdated(taskId);
-  await this.notificationService.sendTaskUpdatedNotification(user.email,updatedTask.title)
+   if (user) {
+    await this.notification.taskUpdated(user, updatedTask);
+  }
   return updatedTask;
 }
 
