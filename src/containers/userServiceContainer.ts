@@ -1,7 +1,8 @@
 import userServices from '../services/userServices';
 import { UserRepository } from '../repositories/userRepository';
-import { NotificationService } from '../services/notification/notificationService';
+import { NotificationHelper } from '../helpers/notificationHelper';
+import { notificationService } from './notificationServiceContainer';
 
 const repository=new UserRepository();
-const notification=new NotificationService
-export const userservice = new userServices(repository,notification);
+const notificationhelper=new NotificationHelper(notificationService);
+export const userservice = new userServices(repository,notificationhelper);

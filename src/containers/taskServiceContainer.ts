@@ -7,15 +7,15 @@ import taskServices from '../services/taskServices';
 import { UserRepository } from '../repositories/userRepository';
 import { ActivityLogRepository } from '../repositories/activityLogRepository';
 import { ActivityLogHelper } from '../helpers/activityLogHelper';
-import { NotificationService } from '../services/notification/notificationService';
+import { notificationService } from './notificationServiceContainer';
+import { NotificationHelper } from '../helpers/notificationHelper';
 
 const activityrepository=new ActivityLogRepository();
 const userrepository=new UserRepository();
-const notification=new NotificationService();
 const assignment=new TaskAssignmentService(userrepository);
 const repository=new TaskRepository();
 const activitylogservice=new ActivityLogService(activityrepository);
 const activitylog=new ActivityLogHelper(activitylogservice);
 const taskdomain=new TaskDomainService();
-
-export const taskservice = new taskServices(repository,assignment,activitylog,taskdomain,notification);
+const notificationhelper=new NotificationHelper(notificationService);
+export const taskservice = new taskServices(repository,assignment,activitylog,taskdomain,notificationhelper);
